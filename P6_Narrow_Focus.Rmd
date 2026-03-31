@@ -64,9 +64,12 @@ How are your research questions connected to sustainability? What are your perso
 
 
 `#7 affordable and clean energy 
+<<<<<<< HEAD
 We are curious as to the roles incentives play in achieving this sdg of clean energy, and the consequences this solar siting may have for establishing a "just" energy transition. 
 
 
+=======
+>>>>>>> 752b0dcfe9af4782792e30e035819a18ad6d98f1
 \
 
 # Data
