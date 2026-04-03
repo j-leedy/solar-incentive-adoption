@@ -118,7 +118,7 @@ How is solar adoption and type of solar facility variable within socioeconomic f
 
 ***quinn - make visualization about hot spots of solar adoption and sun exposure using sunroof data. 
 
-***joe - fit linear modle about house income and solar rates 
+***joe - fit linear model about house income and solar rates 
 \
 
 # Next Steps

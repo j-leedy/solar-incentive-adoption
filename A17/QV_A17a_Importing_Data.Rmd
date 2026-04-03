@@ -139,7 +139,7 @@ Once you have a dataset, it's time to load it into `R`. Don't be frustrated if t
 The table below lists some common import functions and when you would use them.
 
 | Function | Use when |
-|-------------------------------|-----------------------------------------|
+|----|----|
 | `read_csv()` | data are saved in .csv (comma delimited) format - you can save Excel files and Google Sheets in this format |
 | `read_delim()` | data are saved in other delimited formats (tab, space, etc.) |
 | `read_sheet()` | data are in a Google Sheet |
