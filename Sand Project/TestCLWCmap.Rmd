@@ -17,10 +17,16 @@ library(leaflet)
 library(ggthemes) 
 library(RColorBrewer)
 library(janitor)
+library(stringr)
 library(readr)
 library(googlesheets4)
-library(stringr)
+
 library(tidygeocoder)
+
+#plotting libraries
+library(leaflet)
+library(leaflet.extras2)
+
 ```
 
 ##name all the data columns
@@ -81,19 +87,71 @@ ggplot(impacts, aes(x = type_of_harm, fill = type_of_harm))+
 Plot the points:
 ```{r}
 
-library (leaflet)
 
 leaflet(data) %>%
   addTiles() %>% 
-  addProviderTiles(providers$CartoDB.Positron)%>%
-  addCircles(data = data,
+  #addProviderTiles(providers$CartoDB.Positron)%>% 
+  addProviderTiles(providers$Esri.WorldImagery)%>% 
+  addCircleMarkers(data = data,
              lng = ~longitude, 
              lat =  ~latitude, 
-             radius = 4)
-            # color = ~pallate2(pct_casual),
-            # label = ~count, 
-             # label = ~paste("departures/day",": ", round(count, 2), sep=""))
-           #  popup = ~paste("incident date"), ")
+             radius = 5,
+             color = "#FFAC1C",
+             popup = ~paste("<strong>Start Date:</strong> ", start_date_of_the_incident, "<br>",
+                            "<strong>Harms Reported:</strong> ", what_kind_of_impact_or_harm_are_you_reporting_please_check_all_that_apply, "<br>",
+                            "<strong>Comment:</strong> ", data$community_comment_how_were_you_personally_harmed_and_or_the_environment_impacted_by_this_incident_please_provide_details),
+             clusterOptions = markerClusterOptions()) %>%
+  markerClusterOptions(
+      spiderfyOnMaxZoom = TRUE) %>%  #I dont think this does anything...
+  labelOptions(
+    opacity = 1,
+    textsize = "30px"
+  )
+
+```
+
+
+```{r}
+labelOptions(
+  interactive = FALSE,
+  clickable = NULL,
+  noHide = NULL,
+  permanent = FALSE,
+  className = "",
+  direction = "auto",
+  offset = c(0, 0),
+  opacity = 1,
+  textsize = "10px",
+  textOnly = FALSE,
+  style = NULL,
+  zoomAnimation = NULL,
+  sticky = TRUE,
+  ...
+)
+
+markerOptions(
+  interactive = TRUE,
+  clickable = NULL,
+  draggable = FALSE,
+  keyboard = TRUE,
+  title = "",
+  alt = "",
+  zIndexOffset = 0,
+  opacity = 1,
+  riseOnHover = FALSE,
+  riseOffset = 250,
+  ...
+)
+
+markerClusterOptions(
+  showCoverageOnHover = TRUE,
+  zoomToBoundsOnClick = TRUE,
+  spiderfyOnMaxZoom = TRUE,
+  removeOutsideVisibleBounds = TRUE,
+  spiderLegPolylineOptions = list(weight = 1.5, color = "#222", opacity = 0.5),
+  freezeAtZoom = FALSE,
+  ...
+)
 ```
 
 
