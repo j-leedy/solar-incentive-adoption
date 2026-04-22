@@ -19,7 +19,7 @@ disabled_harms <- setdiff(all_harms, available_harms) # Disable the ones that do
 ui <- fluidPage(
   
   # Title
-  titlePanel("My Location-Based Date Explorer"),
+  titlePanel("Sand Mines and Incidents in SE Massachussets"),
   
   # Layout
   sidebarLayout(
@@ -45,21 +45,11 @@ ui <- fluidPage(
       
       # checkboxes for harm type
       
-      checkboxGroupButtons(
-        inputId = "harms",
-        label = "Select Harms:",
-        choices = all_harms,
-        
-        # default selections (only valid ones)
-        selected = available_harms,
-        
-        # 🔥 THIS is the key line
-       # disabledChoices = disabled_harms,
-        
-        status = "primary",
-        checkIcon = list(
-          yes = icon("check")
-        )
+      checkboxGroupInput(
+        "harms",
+        "Select harms to highlight affected locations",
+        choices = c("airborne_sand", "personal_health", "noise", "safety_concern", "sedimentation", "truck_traffic", "harm_to_wildlife"),
+        selected = c("airborne_sand", "personal_health", "noise", "safety_concern", "sedimentation", "truck_traffic", "harm_to_wildlife")  #default: show all
       )
      
     ), #end of sidebar panel
@@ -76,6 +66,8 @@ ui <- fluidPage(
 # ---- Server ----
 server <- function(input, output) {
   
+incident_color <- "cyan"
+sandmine_color <- "#FF8B28"
   
  data$incident_start_date <- as.Date(data$incident_start_date)
   
@@ -93,68 +85,85 @@ server <- function(input, output) {
       df <- df %>% filter(name2 == input$resident)
     }
     
+    # code by selected harms (WIP)
+    valid_harms <- intersect(input$harms, names(df))
     
-  #Filter by selected harms
-    valid_harms <- intersect(input$harms, names(df)) #keeps only those harms that are in the data we have
+    df <- df %>%
+      mutate(
+        matches_harm = if (length(valid_harms) > 0) {
+          if_any(all_of(valid_harms), ~ . == TRUE)
+        } else {
+          TRUE
+        }
+      )
     
-    if (length(input$harms) > 0) {
-      df <- df %>%
-        filter(
-          if_any(all_of(input$harms), ~ . == TRUE)
-        )}
-    else {
-      # If no harms selected → show nothing
-      df <- df[0, ] }
-    
-  
     df
   })
-    
+  
+ 
  
   
   #leaflet map
-  output$map_plot <- renderLeaflet({
+  output$comment_map <- renderLeaflet({
       leaflet() %>%
       addTiles() %>% 
       addProviderTiles(providers$Esri.WorldImagery)%>%
+      
       #plot sand mine locations
       addCircleMarkers(data = geocoded_2,
                        lng = ~lon, 
                        lat =  ~lat, 
                        radius = 3,
                        #radius = ~volume_norm * 10,
-                       color = "#FF8B28",
+                       color = sandmine_color,
                        #fill = "#FF8B28", 
                        opacity = 1,
-                       popup = ~paste("<strong>Owner:</strong> ", owner, "<br>",
+                       popup = ~paste("<strong>Location:</strong> ", location, "<br>",
+                                      "<strong>Owner:</strong> ", owner, "<br>",
                                       "<strong>Size (acres):</strong> ", size, "<br>",
                                       "<strong>Volume Extracted:</strong> ", volume, "<br>"),
-                       group = "static")
-
-  })
+                       group = "Sand Mines") 
+    #These currently break the app "object '.xts_chob' not found"
+    # %>%
+    #   addLayersControl(
+    #     overlayGroups = c("Sand Mines", "Incident Reports"),
+    #     options = layersControlOptions(collapsed = FALSE)
+    #   ) %>%
+    #   
+    #     addLegend(
+    #       position = "bottomright",
+    #       colors = c("#FF8B28", "yellow"),
+    #       labels = c("Sand Mines", "Incident Reports"),
+    #       opacity = 1
+    #     )
       
+ }) 
+  
+
     # Update map reactively
     observe({
       df <- filtered_data()
       
       #plot resident comments
       leafletProxy("comment_map", data = df) %>%
-      clearGroup("filtered") %>%
+      clearGroup("Incident Reports") %>%
       addCircleMarkers(data = df,
                        lng = ~long2, 
                        lat =  ~lat2, 
                        radius = 8,
-                       color = "yellow",
+                       #color = incident_color,
+                       color = ~ifelse(matches_harm, incident_color, "gray"),
+                       fillColor = ~ifelse(matches_harm, incident_color, "gray"),
                        #fill = "yellow",
                        fillOpacity = 1,
                        popup = ~paste("<strong>Start Date:</strong> ", incident_start_date, "<br>",
                                       "<strong>Harms Reported:</strong> ", harms_list, "<br>",
                                       "<strong>Comment:</strong> ", comment2),
-                       clusterOptions = markerClusterOptions(),
-                       group = "filtered"
+                       #clusterOptions = markerClusterOptions(),
+                       group = "Incident Reports"
                        )
-  })
-  
+
+})
 
 }
 
