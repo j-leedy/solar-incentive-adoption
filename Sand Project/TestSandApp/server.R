@@ -9,20 +9,41 @@
 
 library(shiny)
 
-# Define server logic required to draw a histogram
-function(input, output, session) {
-
-    output$distPlot <- renderPlot({
-
-        # generate bins based on input$bins from ui.R
-        x    <- faithful[, 2]
-        bins <- seq(min(x), max(x), length.out = input$bins + 1)
-
-        # draw the histogram with the specified number of bins
-        hist(x, breaks = bins, col = 'darkgray', border = 'white',
-             xlab = 'Waiting time to next eruption (in mins)',
-             main = 'Histogram of waiting times')
-
-    })
-
-}
+# ---- Server ----
+server <- function(input, output) {
+  
+  incident_color <- "cyan"
+  sandmine_color <- "#FF8B28"
+  
+  data$incident_start_date <- as.Date(data$incident_start_date)
+  
+  # Reactive filtering 
+  filtered_data <- reactive({
+    req(input$date_range)
+    
+    df <- data %>%
+      filter(incident_start_date >= input$date_range[1],
+             incident_start_date <= input$date_range[2])
+    
+    
+    # Filter by resident
+    if (input$resident != "All") {
+      df <- df %>% filter(name2 == input$resident)
+    }
+    
+    # code by selected harms (WIP)
+    valid_harms <- intersect(input$harms, names(df))
+    
+    df <- df %>%
+      mutate(
+        matches_harm = if (length(valid_harms) > 0) {
+          if_any(all_of(valid_harms), ~ . == TRUE)
+        } else {
+          TRUE
+        }
+      )
+    
+    df
+  })
+  
+  

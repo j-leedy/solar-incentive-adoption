@@ -21,6 +21,86 @@ ui <- fluidPage(
   # Title
   titlePanel("Sand Mines and Incidents in SE Massachussets"),
   
+  # div(
+  #   style = "
+  #   background-color: #1f4e79;
+  #   color: white;
+  #   padding: 20px;
+  #   font-size: 28px;
+  #   font-weight: bold;
+  # ",
+  #   "Community Land & Water Coalition Map"
+  # ),
+  
+  tags$head(
+    tags$style(HTML("
+    
+    /* ---- Overall background ---- */
+    body {
+      background-color: #f2f2f2;
+      font-family: 'Arial Black', 'Helvetica', sans-serif;
+    }
+    
+    /* ---- Header styling ---- */
+    .navbar, .titlePanel {
+      background-color: #1f4e79;
+      color: white;
+      padding: 15px;
+      font-weight: bold;
+      font-size: 24px;
+    }
+    
+    /* ---- Sidebar ---- */
+    .well {
+      background-color: #e6e6e6;
+      border-radius: 0px;
+      border: none;
+    }
+    
+    /* ---- Main panel ---- */
+    .panel {
+      border-radius: 0px;
+    }
+    
+    /* ---- Inputs (blocky feel) ---- */
+    .form-control, .selectize-input {
+      border-radius: 0px;
+      border: 2px solid #1f4e79;
+    }
+    
+    /* ---- Checkbox labels ---- */
+    .checkbox label {
+      font-weight: bold;
+    }
+    
+    /* ---- Leaflet map container ---- */
+    #comment_map {
+      border: 3px solid #1f4e79;
+    }
+    
+  "))
+  ),
+
+  # tags$head(
+  #   tags$style(HTML("
+  #     body {
+  #       background-color: #f2f2f2;
+  #       font-family: 'Oswald', sans-serif;
+  #     }
+  #   "))
+  # ),
+  # 
+  # div(
+  #   style = "
+  #     background-color: #1f4e79;
+  #     color: white;
+  #     padding: 20px;
+  #     font-size: 28px;
+  #     font-weight: bold;
+  #   ",
+  #   "Community Land & Water Coalition Map"
+  # ),
+  
   # Layout
   sidebarLayout(
     
