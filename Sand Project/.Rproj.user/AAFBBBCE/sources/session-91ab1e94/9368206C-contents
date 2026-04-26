@@ -36,6 +36,8 @@ library(leaflet.extras2)
 ```{r}
 data <- read_sheet('https://docs.google.com/spreadsheets/d/1wrzd1ANfwNCgrm3WCnBL_qYAf0PtrrUBOlttzm8SSxs/edit?resourcekey=&gid=1791295176#gid=1791295176', sheet = 2) 
 
+AQ_loc <- read_sheet('https://docs.google.com/spreadsheets/d/1qYJc4dS9dhQw8c8QqtAx_zbOrE6NGlaLCjnm466d0g4/edit?gid=0#gid=0')
+
 ```
 
 # load plymouth weather data
@@ -83,7 +85,7 @@ incidents_weather <- plym_weather_fresh |>
 winds<- ggplot(filter(plym_weather_fresh), aes(x = date)) +
   geom_point(aes(y = hourly_wind_speed), size = .1)+
   geom_line(aes(y = hourly_wind_speed),linewidth = .01)+
-  geom_point(aes(y = hourly_wind_gust_speed), size = 0.75, color = 'blue', shape = 3)+
+  #geom_point(aes(y = hourly_wind_gust_speed), size = 0.75, color = 'blue', shape = 3)+
   geom_point(
     data = filter(incidents_weather, incident),
     aes(x = date, y = hourly_wind_speed),
@@ -224,43 +226,9 @@ Note: you may be interested in disabling spiderfyOnMaxZoom option when using dis
 
 ## Plotting example!! 
 
-here is the leaflet plot example
-
-```{r, fig.caption = "DC bikemap", echo=FALSE }
-pallate2 <- colorNumeric(palette = c("#0868ac", "#fecc5c", "#fd8d3c", "#f03b20", "#bd0026") , domain = departures2$pct_casual)
-#"YlOrRd"
-#c("#fecc5c", "#fd8d3c", "#f03b20", "#bd0026")
-
-leaflet(departures2) %>%
-  addTiles() %>% 
-  addProviderTiles(providers$CartoDB.Positron)%>%
-  addCircles(data = departures2,
-             lng = ~long, 
-             lat =  ~lat, 
-             radius = 4, # ~variable ... or add circle markers? * multiply by a constant. 
-             color = ~pallate2(pct_casual),
-            # label = ~count, 
-             label = ~paste("departures/day",": ", round(count, 2), sep="")) %>% 
-             #popup = ~paste("departures/day",": ", round(count, 2), sep="")) %>% 
-            
-  #popup is upon click, label is hovering
-            
-  # Add a legend
-  addLegend(pal = pallate2, 
-            values = ~pct_casual, 
-            opacity = 1, 
-            title ="Percentage of Casual Users",
-            position = "topleft") 
-
-
-```
 
 # Data table interactive
 ```{r}
 #use DT package
 ```
-
-#shiny app
-see the testSandApp folder
-
 

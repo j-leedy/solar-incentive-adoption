@@ -14,6 +14,7 @@ library(shinyWidgets)
 all_harms <- c("airborne_sand", "personal_health", "noise", "safety_concern", "sedimentation", "truck_traffic", "harm_to_wildlife")
 available_harms <- intersect(all_harms, names(data)) # Which columns actually exist in your dataset?
 disabled_harms <- setdiff(all_harms, available_harms) # Disable the ones that don’t exist
+data$comment_date <- as.Date(data$comment_date, origin = "1899-12-30")
 
 
 ui <- fluidPage(
@@ -139,7 +140,7 @@ ui <- fluidPage(
         
         div(
           style = "padding: 10px; border: 1px solid #ddd; border-radius: 6px;",
-          strong("Sand Mine Count"),
+          strong("Mapped Sand Mines"),
           br(),
           textOutput("total_mines")
         )
@@ -156,6 +157,7 @@ server <- function(input, output) {
   
 incident_color <- "cyan"
 sandmine_color <- "#FF8B28"
+aq_color <- "yellow"
   
  data$incident_start_date <- as.Date(data$incident_start_date)
   
@@ -195,17 +197,21 @@ sandmine_color <- "#FF8B28"
   })
   
   output$total_mines <- renderText({
-    df <- geocoded_2()
+    df <- geocoded_2
     nrow(df)
   })
  
-  #recent reports
+
+  #recent reports 2
   output$latest_report <- renderText({
     df <- filtered_data()
+    df <- df[!is.na(df$incident_start_date), ]
+    
     if (nrow(df) == 0) return("No reports")
-    max(df$comment_date, na.rm = TRUE)
+    
+    #format(max(df$comment_date), "%Y-%m-%d")
+    format(max(as.Date(df$incident_start_date), na.rm = TRUE), "%B %d, %Y")
   })
- 
   
   #leaflet map
   output$comment_map <- renderLeaflet({
@@ -219,14 +225,41 @@ sandmine_color <- "#FF8B28"
                        lat =  ~lat, 
                        radius = 3,
                        #radius = ~volume_norm * 10,
-                       color = sandmine_color,
+                       color = aq_color,
                        #fill = "#FF8B28", 
                        opacity = 1,
                        popup = ~paste("<strong>Location:</strong> ", location, "<br>",
                                       "<strong>Owner:</strong> ", owner, "<br>",
                                       "<strong>Size (acres):</strong> ", size, "<br>",
                                       "<strong>Volume Extracted:</strong> ", volume, "<br>"),
-                       group = "Sand Mines") 
+                       group = "Sand Mines") %>%
+  #plot AQ sensor
+    addCircleMarkers(data = AQ_loc,
+                     lng = ~Long, 
+                     lat =  ~Lat, 
+                     radius = 3,
+                     #radius = ~volume_norm * 10,
+                     color = sandmine_color,
+                     #fill = "#FF8B28", 
+                     opacity = 1,
+                    
+                      #this is not live.. ? 
+                     # popup = ~paste("<strong>Location of sensor:</strong> ", Location, "<br>",
+                     #                "<strong>Link to Live Air Quality Results:</strong> ", Link
+                     #                #"<a href='", Link, "' target='_blank'>", Link, "</a>"), #this makes the link live
+                     # ),
+                     #
+                     
+                     #this shows all
+                     # popup = ~htmltools::HTML(paste(
+                     #   "<strong>Location of sensor:</strong> ", Location, "<br>",
+                     #   "<strong>Link:</strong> ",
+                     #   "<a href='", Link, "' target='_blank'>View results</a>"
+                     # ),
+                    
+                     group = "Air Quality Sensors")
+    )
+    
     #These currently break the app "object '.xts_chob' not found"
     # %>%
     #   addLayersControl(
@@ -240,7 +273,7 @@ sandmine_color <- "#FF8B28"
     #       labels = c("Sand Mines", "Incident Reports"),
     #       opacity = 1
     #     )
-      
+   
  }) 
   
 
